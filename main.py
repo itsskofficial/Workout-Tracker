@@ -1,5 +1,6 @@
 #the modules
 
+from time import strftime
 import requests
 import datetime
 
@@ -22,9 +23,13 @@ user_input=input("Enter what exercise you did: ")
 
 workout_params={"query":user_input,"gender":gender.lower(),"age":age,"weight_kg":weight,"height_cm":height}
 workout_headers={"x-app-id":WORKOUT_ID,"x-app-key":WORKOUT_KEY,"x-remote-user-id":"0"}
-response=requests.post(url=WORKOUT_END,json=workout_params,headers=workout_headers)
-print(response.json())
+workout_response=requests.post(url=WORKOUT_END,json=workout_params,headers=workout_headers)
+print(workout_response.json())
+
 
 #adding row to sheet
 
-sheeet_params={"workout":{" "}}
+now=datetime.datetime.now()
+sheeet_params={"workout":{"date":now.strftime("%x"),"time":now.strftime("%X"),"exercise":workout_response.json()["exercises"][0]["name"],"duration":workout_response.json()["exercises"][0]["duration_min"],"calories":workout_response.json()["exercises"][0]["nf_calories"]}}
+sheet_response=requests.post(url=SHEET_END,json=sheeet_params)
+print(sheet_response.json())
